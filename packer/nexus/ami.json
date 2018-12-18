@@ -1,0 +1,46 @@
+{
+    "variables" : {
+        "region" : "us-east-1",
+        "source_ami" : "ami-0ff8a91507f77f867",
+        "aws_access_key": "",
+        "aws_secret_key": ""
+    },
+    "builders" : [
+        {
+            "type" : "amazon-ebs",
+            "profile" : "default",
+            "region" : "{{user `region`}}",
+            "instance_type" : "t2.micro",
+            "access_key": "{{user `aws_access_key`}}",
+            "secret_key": "{{user `aws_secret_key`}}",
+            "source_ami" : "{{user `source_ami`}}",
+            "ssh_username" : "ec2-user",
+            "ami_name" : "nexus-joe",
+            "ami_description" : "Amazon Linux Image with Nexus OSS",
+            "run_tags" : {
+                "Name" : "packer-builder-docker"
+            },
+            "tags" : {
+                "Tool" : "Packer",
+                "Author" : "jgonzalez"
+            }
+        }
+    ],
+    "provisioners" : [
+        {
+            "type" : "file",
+            "source" : "./nexus.rc",
+            "destination" : "/tmp/nexus.rc"
+        },
+        {
+            "type" : "file",
+            "source" : "./repository.json",
+            "destination" : "/tmp/repository.json"
+        },
+        {
+            "type" : "shell",
+            "script" : "./setup.sh",
+            "execute_command" : "sudo -E -S sh '{{ .Path }}'"
+        }
+    ]
+}
